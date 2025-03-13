@@ -9,55 +9,58 @@ def generate_filename(camera_id):
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     return f"img_cam_{camera_id}/camera{camera_id}_{timestamp}.jpg"
 
-# Função para capturar imagem de uma câmera
-def capture_image(camera_id, width=1280, height=720):
-    # Acessar a câmera
-    cap = cv2.VideoCapture(camera_id)
+# Função para capturar imagens de ambas as câmeras ao mesmo tempo e salvar simultaneamente
+def capture_image_from_both_cameras(cam1_id=0, cam2_id=1, width=1280, height=720):
+    # Acessa ambas as câmeras
+    cap1 = cv2.VideoCapture(cam1_id)
+    cap2 = cv2.VideoCapture(cam2_id)
     
-    # Verifica se a câmera foi aberta corretamente
-    if not cap.isOpened():
-        camera_id = camera_id + 27
-        print(f"Erro ao acessar a câmera {camera_id}")
-        camera_id = camera_id - 27
+    # Verifica se as câmeras foram abertas corretamente
+    if not cap1.isOpened():
+        print(f"Erro ao acessar a câmera {cam1_id}")
+        return
+    if not cap2.isOpened():
+        print(f"Erro ao acessar a câmera {cam2_id}")
         return
     
-    # Define a resolução da câmera
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+    # Define a resolução das câmeras
+    cap1.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    cap1.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     
-    # Lê a imagem da câmera
-    ret, frame = cap.read()
-    
-    if ret:
-        # Gera um nome de arquivo único e salva a imagem capturada
-        filename = generate_filename(camera_id)
-        cv2.imwrite(filename, frame)
-        camera_id = camera_id + 27
-        print(f"Foto da câmera {camera_id} salva como {filename}")
-        camera_id = camera_id - 27
-    else:
-        camera_id = camera_id + 27
-        print(f"Erro ao capturar a imagem da câmera {camera_id}")
-        camera_id = camera_id - 27
-    
-    # Libera a câmera
-    cap.release()
+    cap2.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+    cap2.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-# Função para capturar de ambas as câmeras ao mesmo tempo
-def capture_from_both_cameras():
-    # Cria threads para capturar de duas câmeras simultaneamente
-    thread1 = threading.Thread(target=capture_image, args=(1,))
-    thread2 = threading.Thread(target=capture_image, args=(0,))
-    
-    # Inicia as threads
-    thread1.start()
-    thread2.start()
+    while True:
+        # Lê as imagens das duas câmeras
+        ret1, frame1 = cap1.read()
+        ret2, frame2 = cap2.read()
 
-    # Aguarda ambas as threads terminarem
-    thread1.join()
-    thread2.join()
+        if ret1 and ret2:
+            # Mostra o feed de vídeo das duas câmeras em tempo real
+            cv2.imshow(f"Camera {cam1_id}", frame1)
+            cv2.imshow(f"Camera {cam2_id}", frame2)
+
+            # Ao pressionar 's', salva simultaneamente as imagens de ambas as câmeras
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                filename1 = generate_filename(cam1_id)
+                filename2 = generate_filename(cam2_id)
+                cv2.imwrite(filename1, frame1)
+                cv2.imwrite(filename2, frame2)
+                print(f"Fotos das câmeras {cam1_id} e {cam2_id} salvas como {filename1} e {filename2}")
+
+            # Pressione 'q' para sair da visualização
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else:
+            print(f"Erro ao capturar imagem das câmeras {cam1_id} e {cam2_id}")
+            break
+    
+    # Libera as câmeras e fecha as janelas
+    cap1.release()
+    cap2.release()
+    cv2.destroyAllWindows()
 
 if __name__ == '__main__':
     start_time = time.time()
-    capture_from_both_cameras()
-    print(f"Fotos capturadas em {time.time() - start_time} segundos")
+    capture_image_from_both_cameras()
+    print(f"Captura finalizada em {time.time() - start_time} segundos")

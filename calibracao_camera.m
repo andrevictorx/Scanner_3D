@@ -52,44 +52,44 @@ showExtrinsics(stereoParams, 'CameraCentric');
 figure; 
 displayErrors(estimationErrors, stereoParams);
 
-% Rectify stereo images
-sampleImageCam2 = imread(imagePathsCam2{1});
-[rectifiedImage1, rectifiedImage2, ~] = rectifyStereoImages(sampleImage, sampleImageCam2, stereoParams);
-
-% Process images for edge detection
-grayImage1 = rgb2gray(rectifiedImage1);
-grayImage2 = rgb2gray(rectifiedImage2);
-
-edgeImage1 = edge(grayImage1, 'Canny');
-edgeImage2 = edge(grayImage2, 'Canny');
-
-% Show detected edges
-figure;
-subplot(1,2,1); imshow(edgeImage1); title('Bordas - Imagem 1');
-subplot(1,2,2); imshow(edgeImage2); title('Bordas - Imagem 2');
-
-% Estimate disparity between rectified images
-disparityMap = disparity(grayImage1, grayImage2);
-
-% Create the point cloud from the disparity map
-pointCloud = reconstructScene(disparityMap, stereoParams);
-
-% Visualize the point cloud
-figure;
-pcshow(pointCloud, 'VerticalAxis', 'Y', 'VerticalAxisDir', 'Down', 'MarkerSize', 100);
-title('Nuvem de Pontos 3D');
-xlabel('X (milímetros)');
-ylabel('Y (milímetros)');
-zlabel('Z (milímetros)');
-
-% Generate a mesh from the point cloud (optional, if needed)
-triangulation = delaunayTriangulation(pointCloud(:,1:2));
-mesh = triangulate(triangulation, pointCloud);
-
-% Visualize the 3D mesh
-figure;
-trisurf(mesh, 'FaceColor', 'cyan', 'EdgeColor', 'none');
-title('Modelo 3D da PCB');
-xlabel('X (milímetros)');
-ylabel('Y (milímetros)');
-zlabel('Z (milímetros)');
+% % Rectify stereo images
+% sampleImageCam2 = imread(imagePathsCam2{1});
+% [rectifiedImage1, rectifiedImage2, ~] = rectifyStereoImages(sampleImage, sampleImageCam2, stereoParams);
+% 
+% % Process images for edge detection
+% grayImage1 = rgb2gray(rectifiedImage1);
+% grayImage2 = rgb2gray(rectifiedImage2);
+% 
+% edgeImage1 = edge(grayImage1, 'Canny');
+% edgeImage2 = edge(grayImage2, 'Canny');
+% 
+% % Show detected edges
+% figure;
+% subplot(1,2,1); imshow(edgeImage1); title('Bordas - Imagem 1');
+% subplot(1,2,2); imshow(edgeImage2); title('Bordas - Imagem 2');
+% 
+% % Estimate disparity between rectified images
+% disparityMap = disparity(grayImage1, grayImage2);
+% 
+% % Create the point cloud from the disparity map
+% pointCloud = reconstructScene(disparityMap, stereoParams);
+% 
+% % Visualize the point cloud
+% figure;
+% pcshow(pointCloud, 'VerticalAxis', 'Y', 'VerticalAxisDir', 'Down', 'MarkerSize', 100);
+% title('Nuvem de Pontos 3D');
+% xlabel('X (milímetros)');
+% ylabel('Y (milímetros)');
+% zlabel('Z (milímetros)');
+% 
+% % Generate a mesh from the point cloud (optional, if needed)
+% triangulation = delaunayTriangulation(pointCloud(:,1:2));
+% mesh = triangulate(triangulation, pointCloud);
+% 
+% % Visualize the 3D mesh
+% figure;
+% trisurf(mesh, 'FaceColor', 'cyan', 'EdgeColor', 'none');
+% title('Modelo 3D da PCB');
+% xlabel('X (milímetros)');
+% ylabel('Y (milímetros)');
+% zlabel('Z (milímetros)');
